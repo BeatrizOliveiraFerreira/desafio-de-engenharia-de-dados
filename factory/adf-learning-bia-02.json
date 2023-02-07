@@ -1,0 +1,9 @@
+{
+	"name": "adf-learning-bia-02",
+	"location": "eastus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "46cedff8-f7e1-4b93-ad1b-703b46579c85",
+		"tenantId": "cf36141c-ddd7-45a7-b073-111f66d0b30c"
+	}
+}
