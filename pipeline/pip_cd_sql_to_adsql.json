@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select isnull(Last_Modified,'1900-01-01') * from dbo.watermark where table_name = '@(pipeline().parameters.table_name_par)'",
+						"sqlReaderQuery": "select isnull(Last_Modified,'1900-01-01') Last_Modified from dbo.watermark where table_name = '@(pipeline().parameters.table_name_par)'",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -34,7 +34,8 @@
 								"type": "Expression"
 							}
 						}
-					}
+					},
+					"firstRowOnly": true
 				}
 			},
 			{
@@ -61,7 +62,7 @@
 		"parameters": {
 			"schema_par": {
 				"type": "string",
-				"defaultValue": "salesLT"
+				"defaultValue": "saleLT"
 			},
 			"table_name_par": {
 				"type": "string",
