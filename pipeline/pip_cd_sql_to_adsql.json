@@ -39,7 +39,108 @@
 				}
 			},
 			{
-				"name": "Set LastModified",
+				"name": "MaxiastModified",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select max(ModifiedDate) as ModifiedDate from @{pipeline().parameters.schema_par}.@{pipeline().parameters.table_name_par}\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable_gen",
+						"type": "DatasetReference",
+						"parameters": {
+							"ds_name_table": "salesLT",
+							"ds_schema_table": "Product"
+						}
+					}
+				}
+			},
+			{
+				"name": "Copy data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Wait",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select * from @{pipeline().parameters.schema_par}.@{pipeline().parameters.table_name_par} where ModifiedDate > '@{variables('last_modified')}' and ModifiedDate <= '@{variables('max_valor_escrito')}'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AzureSqlTable_gen",
+						"type": "DatasetReference",
+						"parameters": {
+							"ds_name_table": "Product",
+							"ds_schema_table": "salesLT"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"ds_container": {
+								"value": "@pipeline().parameters.container_par",
+								"type": "Expression"
+							},
+							"ds_directory": {
+								"value": "@pipeline().parameters.directory_par",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set ultimo valor lido",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
@@ -53,30 +154,113 @@
 				"typeProperties": {
 					"variableName": "last_modified",
 					"value": {
-						"value": "@activity('LastModified').output.firstRow.Last_Modified",
+						"value": "@activity('LastModified').output.effectiveIntegrationRuntime",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "Set ultimo valor escrito",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "MaxiastModified",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "max_valor_escrito",
+					"value": {
+						"value": "@activity('MaxiastModified').output.effectiveIntegrationRuntime",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Wait",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Set ultimo valor lido",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set ultimo valor escrito",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			},
+			{
+				"name": "Update watermark",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Copy data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "is_AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": "update dbo.watermark\nset Last_Modified = '@{variables('max_valor_escrito')}'\nwhere table_name = '@{pipeline().parameters.table_name_par}'"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
 				}
 			}
 		],
 		"parameters": {
 			"schema_par": {
 				"type": "string",
-				"defaultValue": "saleLT"
+				"defaultValue": "salesLT"
 			},
 			"table_name_par": {
 				"type": "string",
 				"defaultValue": "Product"
 			},
 			"container_par": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "landing"
 			},
 			"directory_par": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "Adventureworks/Incremental/Product/"
 			}
 		},
 		"variables": {
 			"last_modified": {
+				"type": "String"
+			},
+			"lastmodified": {
+				"type": "String"
+			},
+			"max_valor_escrito": {
 				"type": "String"
 			}
 		},
