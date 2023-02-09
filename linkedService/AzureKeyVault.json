@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "AzureKeyVault",
 		"typeProperties": {
-			"baseUrl": "https://akv-academy-ava-01.vault.azure.net/"
+			"baseUrl": "https://akv-ava.vault.azure.net/"
 		}
 	}
 }
