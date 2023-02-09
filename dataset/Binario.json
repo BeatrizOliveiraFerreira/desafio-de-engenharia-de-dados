@@ -1,0 +1,19 @@
+{
+	"name": "Binario",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "sales.zip",
+				"folderPath": "root/sales/zip",
+				"fileSystem": "landing"
+			}
+		}
+	}
+}
