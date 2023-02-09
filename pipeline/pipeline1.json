@@ -212,7 +212,11 @@
 				"outputs": [
 					{
 						"referenceName": "Parquet",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"ds_container": "Product",
+							"ds_directory": "saleLT"
+						}
 					}
 				]
 			}
