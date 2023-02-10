@@ -42,7 +42,7 @@
 				}
 			},
 			{
-				"name": "MaxiastModified",
+				"name": "MaxLastModified",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -88,7 +88,7 @@
 				"typeProperties": {
 					"variableName": "last_modified",
 					"value": {
-						"value": "@activity('LastModified').output.effectiveIntegrationRuntime",
+						"value": "@activity('LastModified').output.firstRow.Last_Modified",
 						"type": "Expression"
 					}
 				}
@@ -98,7 +98,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "MaxiastModified",
+						"activity": "MaxLastModified",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -108,7 +108,7 @@
 				"typeProperties": {
 					"variableName": "max_valor_escrito",
 					"value": {
-						"value": "@activity('MaxiastModified').output.effectiveIntegrationRuntime",
+						"value": "@activity('MaxLastModified').output.firstRow.ModifiedDate",
 						"type": "Expression"
 					}
 				}
