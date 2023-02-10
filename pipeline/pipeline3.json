@@ -77,7 +77,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@contains(variables('list_table'), item())",
+									"value": "@contains(variables('list_table'), item().table_name)",
 									"type": "Expression"
 								}
 							}
