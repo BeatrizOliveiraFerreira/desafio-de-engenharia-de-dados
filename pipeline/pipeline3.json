@@ -31,6 +31,26 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "list_table",
+					"value": [
+						"Customer",
+						"Address"
+					]
+				}
 			}
 		],
 		"parameters": {
@@ -45,6 +65,11 @@
 			"container_par": {
 				"type": "string",
 				"defaultValue": "landing"
+			}
+		},
+		"variables": {
+			"list_table": {
+				"type": "Array"
 			}
 		},
 		"annotations": []
