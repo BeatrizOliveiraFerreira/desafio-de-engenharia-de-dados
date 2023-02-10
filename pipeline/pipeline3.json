@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT TABLE_NAME\n\nFROM\n  \tINFORMATION_SCHEMA.TABLES\n\nWHERE TABLE_SCHEMA = '' and TABLE_TYPE = 'BASE TABLE'",
+						"sqlReaderQuery": "SELECT TABLE_NAME\n\nFROM\n  \tINFORMATION_SCHEMA.TABLES\n\nWHERE TABLE_SCHEMA = @{pipeline().parameters.schema_par} and TABLE_TYPE = 'BASE TABLE'",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
